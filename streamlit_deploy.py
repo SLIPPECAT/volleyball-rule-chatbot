@@ -3,14 +3,13 @@ import streamlit as st
 import tempfile
 
 from langchain_community.document_loaders import PyPDFLoader
-#from langchain.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
-# from langchain.vectorstores import Chroma
+#    from langchain.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
@@ -98,3 +97,41 @@ def initialize_components(selected_model):
     question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
     rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
     return rag_chain
+
+# Streamlit UI
+st.header("배구 규칙 챗봇 💬 📚")
+option = st.selectbox("Select GPT Model", ("gpt-4o-mini", "gpt-3.5-turbo-0125"))
+rag_chain = initialize_components(option)
+chat_history = StreamlitChatMessageHistory(key="chat_messages")
+
+conversational_rag_chain = RunnableWithMessageHistory(
+    rag_chain,
+    lambda session_id: chat_history,
+    input_messages_key="input",
+    history_messages_key="history",
+    output_messages_key="answer",
+)
+
+
+if "messages" not in st.session_state:
+    st.session_state["messages"] = [{"role": "assistant",
+                                     "content": "배구 규칙에 대해 무엇이든 물어보세요!!"}]
+
+for msg in chat_history.messages:
+    st.chat_message(msg.type).write(msg.content)
+
+
+if prompt_message := st.chat_input("Your question"):
+    st.chat_message("human").write(prompt_message)
+    with st.chat_message("ai"):
+        with st.spinner("Thinking..."):
+            config = {"configurable": {"session_id": "any"}}
+            response = conversational_rag_chain.invoke(
+                {"input": prompt_message},
+                config)
+
+            answer = response['answer']
+            st.write(answer)
+            with st.expander("참고 문서 확인"):
+                for doc in response['context']:
+                    st.markdown(doc.metadata['source'], help=doc.page_content)
