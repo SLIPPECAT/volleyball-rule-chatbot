@@ -9,27 +9,22 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
-#    from langchain.vectorstores import Chroma
+from langchain.vectorstores import Chroma
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain_community.chat_message_histories.streamlit import StreamlitChatMessageHistory
 
-loader = PyPDFLoader(os.path.join("data", "2021-2024_배구경기규칙서.pdf"))
-pages = loader.load_and_split()
-print(pages[2])
-
-#__import__('pysqlite3')
-#import sys
-#sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 from langchain_chroma import Chroma
-#오픈AI API 키 설정
+# 오픈AI API 키 설정
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
-
 #cache_resource로 한번 실행한 결과 캐싱해두기
-@st.cache_resource
+# @st.cache_resource
 def load_and_split_pdf(file_path):
     loader = PyPDFLoader(file_path)
     return loader.load_and_split()
@@ -49,8 +44,6 @@ def create_vector_store(_docs):
 
 #만약 기존에 저장해둔 ChromaDB가 있는 경우, 이를 로드
 @st.cache_resource
-# 캐시를 비움
-#@st.cache_resource(show_spinner=False, persist=False, suppress_st_warning=True)
 def get_vectorstore(_docs):
     persist_directory = "./chroma_db"
     if os.path.exists(persist_directory):
@@ -62,10 +55,9 @@ def get_vectorstore(_docs):
         return create_vector_store(_docs)
 
 # PDF 문서 로드-벡터 DB 저장-검색기-히스토리 모두 합친 Chain 구축
-@st.cache_resource
+# @st.cache_resource
 def initialize_components(selected_model):
-    file_path = os.path.join("data", "2021-2024_배구경기규칙서.pdf")
-    #file_path = r"./data/2021-2024_배구경기규칙서.pdf"
+    file_path = r"./data/2021-2024_배구경기규칙서.pdf"
     pages = load_and_split_pdf(file_path)
     vectorstore = get_vectorstore(pages)
     retriever = vectorstore.as_retriever()
