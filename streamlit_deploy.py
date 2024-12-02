@@ -27,8 +27,12 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 #cache_resource로 한번 실행한 결과 캐싱해두기
 @st.cache_resource
 def load_and_split_pdf(file_path):
-    loader = PyPDFLoader(file_path)
-    return loader.load_and_split()
+    uploaded_file = st.file_uploader(file_path, type="pdf")
+    if uploaded_file is not None:
+    #loader = PyPDFLoader(uploaded_file)
+    #pages = loader.load_and_split()
+        loader = PyPDFLoader(file_path)
+        return loader.load_and_split()
 
 #텍스트 청크들을 Chroma 안에 임베딩 벡터로 저장
 @st.cache_resource
@@ -44,9 +48,9 @@ def create_vector_store(_docs):
     return vectorstore
 
 #만약 기존에 저장해둔 ChromaDB가 있는 경우, 이를 로드
-#@st.cache_resource
+@st.cache_resource
 # 캐시를 비움
-@st.cache_resource(show_spinner=False, persist=False, suppress_st_warning=True)
+#@st.cache_resource(show_spinner=False, persist=False, suppress_st_warning=True)
 def get_vectorstore(_docs):
     persist_directory = "./chroma_db"
     if os.path.exists(persist_directory):
