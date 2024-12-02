@@ -19,9 +19,9 @@ loader = PyPDFLoader(os.path.join("data", "2021-2024_배구경기규칙서.pdf")
 pages = loader.load_and_split()
 print(pages[2])
 
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+#__import__('pysqlite3')
+#import sys
+#sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 from langchain_chroma import Chroma
 #오픈AI API 키 설정
