@@ -27,6 +27,7 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 # @st.cache_resource
 def load_and_split_pdf(file_path):
     loader = PyPDFLoader(file_path)
+    print(file_path)
     return loader.load_and_split()
 
 #텍스트 청크들을 Chroma 안에 임베딩 벡터로 저장
@@ -57,7 +58,8 @@ def get_vectorstore(_docs):
 # PDF 문서 로드-벡터 DB 저장-검색기-히스토리 모두 합친 Chain 구축
 # @st.cache_resource
 def initialize_components(selected_model):
-    file_path = r"./data/2021-2024_배구경기규칙서.pdf"
+    # file_path = r"./data/2021-2024_배구경기규칙서.pdf"
+    file_path = os.path.join("data", "2021-2024_배구경기규칙서.pdf")
     pages = load_and_split_pdf(file_path)
     vectorstore = get_vectorstore(pages)
     retriever = vectorstore.as_retriever()
