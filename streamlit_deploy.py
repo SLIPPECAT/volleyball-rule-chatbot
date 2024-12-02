@@ -44,7 +44,9 @@ def create_vector_store(_docs):
     return vectorstore
 
 #만약 기존에 저장해둔 ChromaDB가 있는 경우, 이를 로드
-@st.cache_resource
+#@st.cache_resource
+# 캐시를 비움
+@st.cache_resource(show_spinner=False, persist=False, suppress_st_warning=True)
 def get_vectorstore(_docs):
     persist_directory = "./chroma_db"
     if os.path.exists(persist_directory):
