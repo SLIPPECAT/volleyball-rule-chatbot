@@ -15,6 +15,10 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain_community.chat_message_histories.streamlit import StreamlitChatMessageHistory
 
+loader = PyPDFLoader(os.path.join("data", "2021-2024_배구경기규칙서.pdf"))
+pages = loader.load_and_split()
+print(pages[2])
+
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
