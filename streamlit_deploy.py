@@ -25,10 +25,17 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 #cache_resource로 한번 실행한 결과 캐싱해두기
 # @st.cache_resource
+#def load_and_split_pdf(file_path):
+#    loader = PyPDFLoader(file_path)
+#    print(file_path)
+#    return loader.load_and_split()
+
+@st.cache_resource
 def load_and_split_pdf(file_path):
-    loader = PyPDFLoader(file_path)
-    print(file_path)
-    return loader.load_and_split()
+    uploaded_file = st.file_uploader("Upload your PDF", type="pdf")
+    if uploaded_file is not None:
+        loader = PyPDFLoader(uploaded_file)
+        return loader.load_and_split()
 
 #텍스트 청크들을 Chroma 안에 임베딩 벡터로 저장
 @st.cache_resource
